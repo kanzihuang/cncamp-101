@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: hello-volumes
+  labels:
+    run: nginx
+spec:
+  containers:
+    image: nginx
+    name: nginx
+    volumnMounts:
+    - name: data
+      mountPath: /data
+  volumns:
+  - name: data
+    emptyDir: {}

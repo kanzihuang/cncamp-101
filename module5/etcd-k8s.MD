@@ -1,4 +1,6 @@
+
 ```sh
+
 alias ks=kubectl -n kube-system
 ks get po etcd-cadmin -oyaml
 ```

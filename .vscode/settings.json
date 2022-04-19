@@ -1,0 +1,11 @@
+{
+    "workbench.colorCustomizations": {
+        "[Default Light+]": {
+            "activityBar.activeBackground": "#ffffff",
+            "activityBar.background": "#eeeeee",
+            "activityBar.foreground": "#000000"
+        }
+    },
+
+    "workbench.colorTheme": "Default Light+"    
+}

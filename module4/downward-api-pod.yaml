@@ -6,7 +6,7 @@ spec:
   containers:
     - name: test-container
       image: nginx
-      #command: [ "/bin/sh", "-c", "env" ]
+      command: [ "/bin/sh", "-c", "env" ]
       env:
         # Define the environment variable
         - name: SPECIAL_LEVEL_KEY
@@ -15,5 +15,16 @@ spec:
               # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
               name: special-config
               # Specify the key associated with the value
-              key: special.how
+              key: special-how
+        - name: MY_NAME
+          value: wanli
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysecret
+              key: fullname
   restartPolicy: Never

@@ -1,21 +1,10 @@
 export ETCDCTL_API=3
-etcdctl snapshot restore snapshot.db \
-  --name infra0 \
-  --data-dir=/tmp/etcd/infra0 \
-  --initial-cluster infra0=https://127.0.0.1:3380,infra1=https://127.0.0.1:4380,infra2=https://127.0.0.1:5380 \
-  --initial-cluster-token etcd-cluster-1 \
-  --initial-advertise-peer-urls https://127.0.0.1:3380
 
-etcdctl snapshot restore snapshot.db \
-    --name infra1 \
-    --data-dir=/tmp/etcd/infra1 \
-    --initial-cluster infra0=https://127.0.0.1:3380,infra1=https://127.0.0.1:4380,infra2=https://127.0.0.1:5380 \
-    --initial-cluster-token etcd-cluster-1 \
-    --initial-advertise-peer-urls https://127.0.0.1:4380
-
-etcdctl snapshot restore snapshot.db \
-  --name infra2 \
-  --data-dir=/tmp/etcd/infra2 \
-  --initial-cluster infra0=https://127.0.0.1:3380,infra1=https://127.0.0.1:4380,infra2=https://127.0.0.1:5380 \
+member_name="infra0"
+member_ip="152.136.201.177"
+sudo etcdutl snapshot restore snapshot.db \
+  --name $member_name \
+  --data-dir=/data/etcd/$member_name.etcd \
+  --initial-cluster infra0=https://152.136.201.177:2380,infra1=https://123.57.247.175:2380,infra2=https://124.70.63.239:2380 \
   --initial-cluster-token etcd-cluster-1 \
-  --initial-advertise-peer-urls https://127.0.0.1:5380
+  --initial-advertise-peer-urls https://$member_ip:2380

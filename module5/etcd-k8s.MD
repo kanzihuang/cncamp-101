@@ -1,4 +1,6 @@
+
 ```sh
+
 alias ks=kubectl -n kube-system
 ks get po etcd-cadmin -oyaml
 ```
@@ -34,6 +36,11 @@ alias ectl='etcdctl --endpoints https://127.0.0.1:2379 \
 --cacert /etc/kubernetes/pki/etcd/ca.crt \
 --cert /etc/kubernetes/pki/etcd/server.crt \
 --key /etc/kubernetes/pki/etcd/server.key'
+
+alias ectl='etcdctl --endpoints https://10.10.10.10:2379 \
+--cacert /etc/kubernetes/pki/ca.crt \
+--cert /etc/kubernetes/pki/server.crt \
+--key /etc/kubernetes/pki/server.key'
 
 ectl member list
 

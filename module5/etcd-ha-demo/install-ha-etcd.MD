@@ -44,7 +44,13 @@ mv certs /tmp/etcd-certs
 ### Member list
 
 ```sh
-etcdctl --endpoints https://127.0.0.1:3379 --cert /tmp/etcd-certs/certs/127.0.0.1.pem --key /tmp/etcd-certs/certs/127.0.0.1-key.pem --cacert /tmp/etcd-certs/certs/ca.pem member list
+member_ip=152.136.201.177
+
+etcdctl --endpoints https://$member_ip:3379 \
+--cert /data/etcd/certs/$member_ip.pem \
+--key /data/etcd/certs/$member_ip-key.pem \
+--cacert /data/etcd/certs/ca.pem member list -wtable
+
 ```
 
 ### Backup

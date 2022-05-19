@@ -34,6 +34,10 @@ vi ~/.kube/config
 - name: mfanjie
   user:
     token: <mytoken>
+
+- name: wanli
+  user:
+    token: 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
 ```
 
 ### Get pods by mfanjie

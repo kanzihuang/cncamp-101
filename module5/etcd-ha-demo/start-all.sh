@@ -2,8 +2,8 @@
 infra0="152.136.201.177"
 infra1="123.57.247.175"
 infra2="124.70.63.239"
-member_name="infra1"
-member_ip=$infra1
+member_name="infra0"
+member_ip=$infra0
 
 nohup etcd --name $member_name \
 --data-dir=/data/etcd/$member_name.etcd \

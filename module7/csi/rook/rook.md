@@ -12,7 +12,8 @@ Create a raw disk from virtualbox console and attach to the vm (must > 5G).
 
 ```sh
 delete ns rook-ceph
-for i in `kubectl api-resources | grep true | awk '{print \$1}'`; do echo $i;kubectl get $i -n clusternet-skgdp; done
+kubectl api-resources --verbs=list --namespaced -o name \
+  | xargs -n 1 kubectl get --show-kind --ignore-not-found -n rook-ceph
 ```
 
 ### Checkout rook
@@ -161,26 +162,38 @@ kubectl delete -f cluster-test.yaml
 kubectl delete -f crds.yaml -f common.yaml -f operator.yaml
 kubectl delete ns rook-ceph
 ```
-### clean up
-### 编辑下面四个文件，将finalizer的值修改为null
-### 例如
-```
+
+编辑下面四个文件，将finalizer的值修改为null, 例如
+
+```txt
 finalizers:
     - ceph.rook.io/disaster-protection/
 ```
-### 修改为
-```
+
+修改为
+
+```txt
 finalizers：null
 ```
+
+```sh
+for CRD in $(kubectl get crd -n rook-ceph | awk '/ceph.rook.io/ {print $1}'); do
+    kubectl get -n rook-ceph "$CRD" -o name | \
+    xargs -I {} kubectl patch -n rook-ceph {} --type merge -p '{"metadata":{"finalizers": [null]}}'
+done
+
 ```
-kubectl edit secret -n rook-ceph
-kubectl edit configmap -n rook-ceph
-kubectl edit cephclusters -n rook-ceph
-kubectl edit cephblockpools -n rook-ceph
-```
+
 ### 执行下面循环，直至找不到任何rook关联对象。
-```
-for i in `kubectl api-resources | grep true | awk '{print \$1}'`; do echo $i;kubectl get $i -n rook-ceph; done
+
+```sh
+kubectl api-resources --verbs=list --namespaced -o name \
+  | xargs -n 1 kubectl get --show-kind --ignore-not-found -n rook-ceph
 
 rm -rf /var/lib/rook
 ```
+
+
+## Referances
+
+[Cleaning up a Cluster](https://rook.github.io/docs/rook/v1.7/ceph-teardown.html)

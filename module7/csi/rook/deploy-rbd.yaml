@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: pv-tasks
+  name: pv-tasks
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: pv-tasks
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pv-tasks
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+        volumeMounts:
+          - mountPath: /mnt/ceph
+            name: pv-storage
+      volumes:
+        - name: pv-storage
+          persistentVolumeClaim:
+            claimName: rook-ceph-rbd
+status: {}

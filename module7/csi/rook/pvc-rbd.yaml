@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: rook-ceph
+  name: rook-ceph-rbd
 spec:
   storageClassName: rook-ceph-block
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
+      storage: 100Gi

@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: task-pv-pod
+  name: task-pv-rbd
 spec:
   volumes:
-    - name: task-pv-storage
+    - name: task-pv-rbd
       persistentVolumeClaim:
-        claimName: rook-ceph
+        claimName: rook-ceph-rbd
   containers:
     - name: task-pv-container
       image: nginx
@@ -15,4 +15,4 @@ spec:
           name: "http-server"
       volumeMounts:
         - mountPath: "/mnt/ceph"
-          name: task-pv-storage
+          name: task-pv-rbd

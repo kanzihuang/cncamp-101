@@ -5,8 +5,15 @@ metadata:
 spec:
   containers:
     - name: lifecycle-demo-container
-      image: nginx
+      image: kanzihuang/alpine:utils
       lifecycle:
         postStart:
           exec:
-            command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+            command: ["/bin/touch", "/tmp/healthy"]
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 10
+        periodSeconds: 5

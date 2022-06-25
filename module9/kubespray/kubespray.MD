@@ -50,7 +50,7 @@ netplan apply
 ### Download kubespary docker image
 
 ```sh
-docker pull quay.io/kubespray/kubespray:v2.16.0
+docker pull quay.io/kubespray/kubespray:v2.19.0
 ```
 
 ### Clone kubespary source code
@@ -66,7 +66,9 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub cadmin@192.168.34.11
 
 ```sh
 cd kubespray
-docker run --net host --rm -it --name kubespray --mount type=bind,source="$(pwd)"/inventory/sample,dst=/inventory --mount type=bind,source="${HOME}"/.ssh/id_rsa,dst=/root/.ssh/id_rsa   quay.io/kubespray/kubespray:v2.16.0 bash
+nerdctl run --rm -it \
+  --mount type=bind,source="${HOME}"/.ssh/id_rsa,dst=/root/.ssh/id_rsa \
+  quay.io/kubespray/kubespray:v2.19.0 bash
 ```
 
 ### Prepare no password login for server
@@ -74,24 +76,37 @@ docker run --net host --rm -it --name kubespray --mount type=bind,source="$(pwd)
 ### Build ansible inventory
 
 ```sh
-cp -r inventory/sample inventory/mycluster
-declare -a IPS=(192.168.34.10 192.168.34.11)
-CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+cp -r /kubespray/inventory/sample /kubespray/inventory/mycluster
+declare -a IPS=(192.168.1.3 192.168.1.4 192.168.1.5)
+CONFIG_FILE=/kubespray/inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 ```
 
 ### Change gcr.io to mirror
 
 ```sh
-cat > inventory/mycluster/group_vars/k8s_cluster/vars.yml << EOF
+sed -i '/^# files_repo: "http:\/\/myprivatehttpd"/a ghproxy_repo: "https:\/\/ghproxy.com\/https:\/\/github.com"' /kubespray/inventory/mycluster/group_vars/all/offline.yml
+sed -i 's/{{ files_repo }}\/github.com/{{ ghproxy_repo }}/g' /kubespray/inventory/mycluster/group_vars/all/offline.yml
+sed -i '/{{ ghproxy_repo }}/s/^#\s*//' /kubespray/inventory/mycluster/group_vars/all/offline.yml
+sed -i '/^# kube_image_repo:/{s/^#\s*//;s/{{ registry_host }}/registry.aliyuncs.com\/google_containers/}' /kubespray/inventory/mycluster/group_vars/all/offline.yml
+sed -i '/^# gcr_image_repo:/{s/^#\s*//;s/{{ registry_host }}/registry.aliyuncs.com\/google_containers/}' /kubespray/inventory/mycluster/group_vars/all/offline.yml
+
+cat > /kubespray/inventory/mycluster/group_vars/k8s_cluster/vars.yml << EOF
 gcr_image_repo: "registry.aliyuncs.com/google_containers"
 kube_image_repo: "registry.aliyuncs.com/google_containers"
-etcd_download_url: "https://ghproxy.com/https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
-cni_download_url: "https://ghproxy.com/https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
-calicoctl_download_url: "https://ghproxy.com/https://github.com/projectcalico/calicoctl/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
-calico_crds_download_url: "https://ghproxy.com/https://github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
-crictl_download_url: "https://ghproxy.com/https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
-nodelocaldns_image_repo: "cncamp/k8s-dns-node-cache"
-dnsautoscaler_image_repo: "cncamp/cluster-proportional-autoscaler-amd64"
+ghproxy_repo: "https://ghproxy.com/https://github.com"
+
+etcd_download_url: "{{ ghproxy_repo }}/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
+cni_download_url: "{{ ghproxy_repo }}/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
+calicoctl_download_url: "{{ ghproxy_repo }}/projectcalico/calico/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
+calico_crds_download_url: "{{ ghproxy_repo }}/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
+crictl_download_url: "{{ ghproxy_repo }}/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+runc_download_url: "{{ ghproxy_repo }}/opencontainers/runc/releases/download/{{ runc_version }}/runc.{{ image_arch }}"
+containerd_download_url: "{{ ghproxy_repo }}/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+nerdctl_download_url: "{{ ghproxy_repo }}/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+
+coredns_image_repo: "registry.aliyuncs.com/google_containers/coredns"
+nodelocaldns_image_repo: "kanzihuang/registry.k8s.io_slash_dns_slash_k8s-dns-node-cache"
+dnsautoscaler_image_repo: "kanzihuang/registry.k8s.io_slash_cpa_slash_cluster-proportional-autoscaler-{{ image_arch }}"
 EOF
 ```
 
@@ -100,12 +115,9 @@ EOF
 #### On host src folder
 
 ```sh
-vi ansible.cfg
-add remote_user=cadmin to [default] section
-docker cp ansible.cfg kubespray:/kubespray/ansible.cfg
 
-ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -b -v \
- --private-key=~/.ssh/id_rsa
+ansible-playbook -i /kubespray/inventory/mycluster/hosts.yml cluster.yml -b -v \
+ --private-key=~/.ssh/id_rsa --user wanli
 ```
 
 ### Troubleshooting

@@ -1,12 +1,4 @@
-### Deploy simple
+# envoy
 
-```sh
-kubectl create -f simple.yaml
-```
-
-### Deploy envoy
-
-```sh
-kubectl create configmap envoy-config --from-file=envoy.yaml
-kubectl create -f envoy-deploy.yaml
-```
+## Referances
+[使用 Kustomize 对 Kubernetes 对象进行声明式管理](https://kubernetes.io/zh-cn/docs/tasks/manage-kubernetes-objects/kustomization/)

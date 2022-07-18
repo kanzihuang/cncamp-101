@@ -49,12 +49,15 @@ spec:
         runAsUser: 65534 # nobody
       containers:
         - name: hamster
-          image: k8s.gcr.io/ubuntu-slim:0.1
+          image: kanzihuang/alpine:utils
           resources:
+            limits:
+              cpu: 200m
+              memory: 50Mi
             requests:
-              cpu: 100m
+              cpu: 50m
               memory: 50Mi
           command: ["/bin/sh"]
           args:
             - "-c"
-            - "while true; do timeout 0.5s yes >/dev/null; sleep 0.5s; done"
+            - "while true; do timeout 1s yes >/dev/null; done"

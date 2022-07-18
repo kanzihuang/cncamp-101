@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: centos-qos
+  name: alpine-qos
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: centos
+      app: alpine
   template:
     metadata:
       labels:
-        app: centos
+        app: alpine
     spec:
       containers:
       - command:
         - tail
         - -f
         - /dev/null
-        image: centos
-        name: centos
+        image: alpine
+        name: alpine
         resources:
           requests:
             cpu: 250m
@@ -38,6 +38,6 @@ spec:
           - name: CPU_LIMIT
             valueFrom:
               resourceFieldRef:
-                containerName: centos
+                containerName: alpine
                 resource: limits.cpu
                 divisor: 1m

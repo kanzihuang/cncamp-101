@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: php-apache
 spec:
+  minReadySeconds: 30
   selector:
     matchLabels:
       run: php-apache

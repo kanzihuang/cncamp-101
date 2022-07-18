@@ -25,3 +25,18 @@ spec:
         - name: envoy-config
           configMap:
             name: envoy-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy
+spec:
+  ports:
+    - name: http
+      port: 10000
+      protocol: TCP
+      targetPort: 10000
+  selector:
+    run: envoy
+  type: NodePort

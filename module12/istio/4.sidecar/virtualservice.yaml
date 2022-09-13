@@ -4,7 +4,7 @@ metadata:
   name: sidecar
 spec:
   hosts:
-    - nginx
+    - nginx.cncamp.io
   http:
     - match:
         - port: 80

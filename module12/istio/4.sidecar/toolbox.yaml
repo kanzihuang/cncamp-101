@@ -15,8 +15,6 @@ spec:
     spec:
       containers:
         - name: toolbox
-          image: centos
-          command:
-            - tail
-            - -f
-            - /dev/null
+          image: kanzihuang/alpine
+          securityContext:
+            privileged: true
